@@ -46,7 +46,7 @@ namespace BVKKMN_Task_Console
 
         public void LoanTable()
         {
-            DateTime initialDate = DateTime.Now;
+            DateTime initialDate = DateTime.Today;
 
             string dayValue = Convert.ToString(LoanPayDay);
             string date;
