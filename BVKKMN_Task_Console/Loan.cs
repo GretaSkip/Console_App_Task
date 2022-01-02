@@ -1,49 +1,78 @@
-﻿using System;
+﻿using Excel.FinancialFunctions;
+using System;
 
 namespace BVKKMN_Task_Console
 {
     class Loan
     {
-        private double LoanAmount, InterestRate;
-        private int LoanLength, LoanPayDay;
+        private double LoanAmount, InterestRate, LoanLength, LoanPayDay;
 
-        public Loan(double amount, int term, double rate, int payday)
+        public Loan(double amount, double term, double rate, double payDay)
         {
             this.LoanAmount = amount;
             this.LoanLength = term;
             this.InterestRate = rate;
-            this.LoanPayDay = payday;
+            this.LoanPayDay = payDay;
+        }
+
+        public static String GetDate(DateTime value)
+        {
+            return value.ToString("yyyy-MM-");
         }
 
         public double GetMonthlyPayment()
         {
-            return (LoanAmount * InterestRate / 1200 * Math.Pow(1 + InterestRate, LoanLength)) / (Math.Pow(1 + InterestRate, LoanLength) - 1);
+            return Financial.Pmt(InterestRate / 100 / 12, LoanLength, LoanAmount, 0, PaymentDue.EndOfPeriod);
+        }
+
+        public double GetRate()
+        {
+            double pmt = GetMonthlyPayment();
+
+            return Financial.Rate(LoanLength, pmt, LoanAmount, 0, PaymentDue.EndOfPeriod);
+        }
+
+        public double GetAPR()
+        {
+            double nominalRate = GetRate();
+            return Financial.Effect(nominalRate * 12, 12);
+        }
+
+        public void GenerateAPR()
+        {
+            decimal apr = Math.Round(Convert.ToDecimal(GetAPR()) * 100, 2);
+            Console.WriteLine($"APR for this loan is: {apr} %");
         }
 
         public void LoanTable()
         {
-            double monthlyPayment = GetMonthlyPayment();
-            double principalPaid = 0;
-            double newBalance = 0;
-            double interestPaid = 0;
-            double principal = LoanAmount;
-            double totalinterest = 0;
-            double loanLeft = 0;
+            DateTime initialDate = DateTime.Now;
 
-            Console.WriteLine("{0,10}{1,10}{2,10}{3,10}{4,10}", "Payment No.", "Part of the Loan", "Interest Paid", "Payment", "Balance");
-            for (int month = 1; month <= LoanLength; month++)
+            string dayValue = Convert.ToString(LoanPayDay);
+            string date;
+
+            decimal monthlyPayment = (Math.Round(Convert.ToDecimal(GetMonthlyPayment()), 2)) * -1;
+            decimal loanPart = 0;
+            decimal newBalance = 0;
+            decimal interest = 0;
+            decimal loan = Convert.ToDecimal(LoanAmount);
+
+
+            Console.WriteLine("{0,-10}|{1,-10}|{2,-10}|{3,-10}|{4,-10}|{5,-10}", "Payment No.", "Date", "Part of the Loan", "Interest", "Payment", "Balance");
+
+            for (int i = 1; i <= LoanLength; i++)
             {
-                totalinterest += interestPaid;
-                interestPaid = principal * InterestRate;
-                principalPaid = monthlyPayment - interestPaid;
-                newBalance = principal - principalPaid;
-                loanLeft = newBalance - monthlyPayment;
+
+                date = GetDate(initialDate.AddMonths(i)) + dayValue;
+                interest = Math.Round(loan * Convert.ToDecimal(InterestRate) / 100 / 12, 2);
+                loanPart = monthlyPayment - interest;
+                newBalance = loan - loanPart;
 
 
-                Console.WriteLine("{0,-10}{1,10}{2,10}{3,10}{4,10}",
-                    month, loanLeft, interestPaid, monthlyPayment, newBalance);
+                Console.WriteLine("{0,-10}{1,10:N2}{2,10:N2}{3,10:N2}{4,10:N2}{5,10:N2}",
+                    i, date, loanPart, interest, monthlyPayment, newBalance);
 
-                principal = newBalance;
+                loan = newBalance;
             }
         }
     }

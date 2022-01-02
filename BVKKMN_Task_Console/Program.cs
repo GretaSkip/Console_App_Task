@@ -7,30 +7,36 @@ namespace BVKKMN_Task_Console
         static void Main(string[] args)
         {
             double amount;
-            int term;
+            double term;
             double rate;
-            int payday;
+            double payDay;
 
-            Console.WriteLine("BVKKMN Console Calculator App");
+            ;
+
+            Console.WriteLine("Loan Calculator App");
             Console.WriteLine("-----------------------------");
 
-            Console.WriteLine("Type Loan Amount and press Enter");
+            Console.WriteLine("Type Loan Amount (EUR) and press Enter");
             amount = Convert.ToDouble(Console.ReadLine());
 
             Console.WriteLine("Type Term in Months and press Enter");
-            term = Convert.ToInt32(Console.ReadLine());
+            term = Convert.ToDouble(Console.ReadLine());
 
-            Console.WriteLine("Type Annual Interest Rate % and press Enter");
+            Console.WriteLine("Type Annual Interest Rate (%) and press Enter");
             rate = Convert.ToDouble(Console.ReadLine());
 
             Console.WriteLine("Type Payment Date (1-31) and press Enter");
-            payday = Convert.ToInt32(Console.ReadLine());
+            payDay = Convert.ToDouble(Console.ReadLine());
 
             Console.WriteLine("-----------------------------");
 
-            Loan loan = new Loan(amount, term, rate, payday);
+            Loan loan = new Loan(amount, term, rate, payDay);
 
             loan.LoanTable();
+
+            Console.WriteLine("-----------------------------");
+
+            loan.GenerateAPR();
 
             Console.ReadKey();
         }
